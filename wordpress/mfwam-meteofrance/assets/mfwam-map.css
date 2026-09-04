@@ -1,0 +1,354 @@
+.mfw-card {
+    --mfwm-height: 700px;
+    box-sizing: border-box;
+    max-width: 1100px;
+    margin: 1.5em auto;
+    padding: 1.25em;
+    background: #f7f9fc;
+    border: 1px solid #dbe2ea;
+    border-radius: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1c2733;
+}
+
+.mfw-card * {
+    box-sizing: border-box;
+}
+
+.mfw-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1em;
+    margin-bottom: 0.75em;
+}
+
+.mfw-kicker {
+    margin: 0 0 0.2em;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #4a6fa5;
+}
+
+.mfw-header h2 {
+    margin: 0 0 0.2em;
+    font-size: 1.35rem;
+}
+
+.mfw-meta {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #5a6b7d;
+}
+
+.mfw-badge {
+    flex: 0 0 auto;
+    padding: 0.5em 0.8em;
+    background: #0b2e5c;
+    color: #fff;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 0.78rem;
+    line-height: 1.3;
+}
+
+.mfwm-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75em;
+    margin-bottom: 0.6em;
+}
+
+.mfwm-field span {
+    display: block;
+    font-size: 0.72rem;
+    color: #5a6b7d;
+    margin-bottom: 0.2em;
+}
+
+.mfwm-layer-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.5em 0.85em;
+    background: #fff;
+    border: 1px solid #cdd8e3;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.mfwm-time-controls {
+    display: inline-flex;
+    gap: 0.3em;
+}
+
+.mfwm-time-controls button {
+    padding: 0.4em 0.65em;
+    background: #fff;
+    border: 1px solid #cdd8e3;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.mfwm-validity {
+    margin-left: auto;
+    text-align: right;
+    font-size: 0.82rem;
+}
+
+.mfwm-validity span {
+    display: block;
+    color: #5a6b7d;
+    font-size: 0.72rem;
+}
+
+.mfwm-layer-menu {
+    background: #fff;
+    border: 1px solid #cdd8e3;
+    border-radius: 10px;
+    margin-bottom: 0.6em;
+    overflow: hidden;
+}
+
+.mfwm-layer-menu-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6em 0.9em;
+    background: #eef3f9;
+}
+
+.mfwm-layer-menu-head small {
+    display: block;
+    color: #5a6b7d;
+    font-size: 0.75rem;
+}
+
+.mfwm-layer-menu-head button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #5a6b7d;
+}
+
+.mfwm-layer-grid {
+    padding: 0.6em 0.9em 0.9em;
+}
+
+.mfwm-layer-group-title {
+    margin: 0.6em 0 0.3em;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #5a6b7d;
+}
+
+.mfwm-layer-group-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
+}
+
+.mfwm-layer-option {
+    padding: 0.45em 0.75em;
+    background: #f2f5fa;
+    border: 1px solid #d5dfe9;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.mfwm-layer-option.is-active {
+    background: #0b2e5c;
+    border-color: #0b2e5c;
+    color: #fff;
+}
+
+.mfw-stale {
+    margin: 0 0 0.6em;
+    padding: 0.5em 0.8em;
+    background: #fff4e0;
+    border: 1px solid #f0c979;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.mfwm-viewport {
+    position: relative;
+    height: var(--mfwm-height);
+    overflow: hidden;
+    border-radius: 10px;
+    background: #0a1f3d;
+    touch-action: none;
+    cursor: grab;
+}
+
+.mfwm-scene {
+    position: absolute;
+    inset: 0;
+    transform-origin: center center;
+    transition: transform 0.05s linear;
+}
+
+.mfwm-background,
+.mfwm-layer-image,
+.mfwm-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+.mfwm-map-titlebar {
+    position: absolute;
+    top: 0.6em;
+    left: 0.6em;
+    display: flex;
+    flex-direction: column;
+    padding: 0.3em 0.6em;
+    background: rgba(10, 20, 35, 0.6);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 0.78rem;
+}
+
+.mfwm-map-date {
+    position: absolute;
+    top: 0.6em;
+    right: 0.6em;
+    padding: 0.3em 0.6em;
+    background: rgba(10, 20, 35, 0.6);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 0.78rem;
+}
+
+.mfwm-map-buttons {
+    position: absolute;
+    bottom: 0.6em;
+    right: 0.6em;
+    display: flex;
+    align-items: center;
+    gap: 0.3em;
+}
+
+.mfwm-map-buttons button {
+    width: 2em;
+    height: 2em;
+    background: rgba(255, 255, 255, 0.92);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.mfwm-zoom-level {
+    padding: 0.2em 0.5em;
+    background: rgba(10, 20, 35, 0.6);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 0.72rem;
+}
+
+.mfwm-legend {
+    position: absolute;
+    bottom: 0.6em;
+    left: 0.6em;
+    padding: 0.5em 0.7em;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 8px;
+    min-width: 220px;
+    max-width: 60%;
+}
+
+.mfwm-legend-title {
+    display: block;
+    font-size: 0.72rem;
+    margin-bottom: 0.3em;
+}
+
+.mfwm-legend-bar {
+    height: 10px;
+    border-radius: 5px;
+}
+
+.mfwm-legend-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: #405066;
+    margin-top: 0.2em;
+}
+
+.mfwm-map-brand {
+    position: absolute;
+    bottom: 0.6em;
+    right: 50%;
+    transform: translateX(50%);
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+}
+
+.mfwm-loading,
+.mfw-error {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10, 20, 35, 0.85);
+    color: #fff;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 1em;
+}
+
+.mfwm-timeline {
+    margin-top: 0.6em;
+}
+
+.mfwm-timeline input[type="range"] {
+    width: 100%;
+}
+
+.mfwm-timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: #5a6b7d;
+}
+
+.mfw-footer {
+    margin-top: 0.8em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2em;
+    font-size: 0.75rem;
+    color: #5a6b7d;
+}
+
+.mfw-footer a {
+    color: #2a5fa8;
+}
+
+@media (max-width: 640px) {
+    .mfw-header {
+        flex-direction: column;
+    }
+
+    .mfwm-validity {
+        margin-left: 0;
+        text-align: left;
+    }
+
+    .mfwm-legend {
+        max-width: 90%;
+    }
+}
