@@ -55,7 +55,7 @@ jobs:
           index = json.loads((root / "index.json").read_text(encoding="utf-8"))
           maps = json.loads((root / "maps/index.json").read_text(encoding="utf-8"))
           assert index["status"] == "ok"
-          assert len(maps["layers"]) >= 4
+          assert len(maps["layers"]) >= 11
           assert len(maps["steps"]) >= 24
           print(
               f"Validation OK : {len(maps['layers'])} couches, "

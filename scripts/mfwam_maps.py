@@ -22,7 +22,7 @@ from PIL import Image
 
 
 MAP_SCHEMA_VERSION = 1
-MODULE_VERSION = "1.0.0"
+MODULE_VERSION = "1.1.0"
 DEFAULT_BOUNDS = {
     "south": 38.0,
     "west": -8.0,
@@ -146,6 +146,100 @@ LAYER_SPECS = (
             (10, "#cf493e"), (13, "#8c1d4a"),
         ),
         group="Vent",
+        decimals=1,
+    ),
+    LayerSpec(
+        "hauteur_houle_totale",
+        "Hauteur de la houle totale",
+        "m",
+        "shs_m",
+        (
+            (0, "#0b2e5c"), (0.3, "#134a8a"), (0.6, "#1c6cb0"),
+            (1, "#2c93c9"), (1.5, "#3fbfc9"), (2, "#57cf8e"),
+            (3, "#a8dc4e"), (4, "#f2d43d"), (5, "#f2a331"),
+            (7, "#ea652b"), (9, "#d93435"),
+        ),
+        group="Houle",
+        decimals=1,
+    ),
+    LayerSpec(
+        "hauteur_houle_primaire",
+        "Hauteur houle primaire",
+        "m",
+        "shps_m",
+        (
+            (0, "#0b2e5c"), (0.3, "#134a8a"), (0.6, "#1c6cb0"),
+            (1, "#2c93c9"), (1.5, "#3fbfc9"), (2, "#57cf8e"),
+            (3, "#a8dc4e"), (4, "#f2d43d"), (5, "#f2a331"),
+            (7, "#ea652b"), (9, "#d93435"),
+        ),
+        group="Houle",
+        decimals=1,
+    ),
+    LayerSpec(
+        "hauteur_houle_secondaire",
+        "Hauteur houle secondaire",
+        "m",
+        "shss_m",
+        (
+            (0, "#0b2e5c"), (0.2, "#134a8a"), (0.4, "#1c6cb0"),
+            (0.7, "#2c93c9"), (1, "#3fbfc9"), (1.5, "#57cf8e"),
+            (2, "#a8dc4e"), (3, "#f2d43d"), (4, "#f2a331"),
+            (5, "#ea652b"), (7, "#d93435"),
+        ),
+        group="Houle",
+        decimals=1,
+    ),
+    LayerSpec(
+        "periode_houle_totale",
+        "Période de la houle totale",
+        "s",
+        "mps_s",
+        (
+            (0, "#3f1d69"), (3, "#354bab"), (6, "#3384c3"),
+            (9, "#3cb9aa"), (12, "#b5d04d"), (15, "#efad3b"),
+            (18, "#cf493e"), (22, "#8c1d4a"),
+        ),
+        group="Houle",
+        decimals=1,
+    ),
+    LayerSpec(
+        "periode_houle_primaire",
+        "Période houle primaire",
+        "s",
+        "mpps_s",
+        (
+            (0, "#3f1d69"), (3, "#354bab"), (6, "#3384c3"),
+            (9, "#3cb9aa"), (12, "#b5d04d"), (15, "#efad3b"),
+            (18, "#cf493e"), (22, "#8c1d4a"),
+        ),
+        group="Houle",
+        decimals=1,
+    ),
+    LayerSpec(
+        "periode_houle_secondaire",
+        "Période houle secondaire",
+        "s",
+        "mpss_s",
+        (
+            (0, "#3f1d69"), (3, "#354bab"), (6, "#3384c3"),
+            (9, "#3cb9aa"), (12, "#b5d04d"), (15, "#efad3b"),
+            (18, "#cf493e"), (22, "#8c1d4a"),
+        ),
+        group="Houle",
+        decimals=1,
+    ),
+    LayerSpec(
+        "periode_pic",
+        "Période de pic des vagues",
+        "s",
+        "pp1d_s",
+        (
+            (0, "#3f1d69"), (3, "#354bab"), (6, "#3384c3"),
+            (9, "#3cb9aa"), (12, "#b5d04d"), (15, "#efad3b"),
+            (18, "#cf493e"), (24, "#8c1d4a"),
+        ),
+        group="Houle",
         decimals=1,
     ),
 )

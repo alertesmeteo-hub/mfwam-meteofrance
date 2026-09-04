@@ -39,7 +39,7 @@ from mfwam_maps import DEFAULT_BOUNDS, WaveMapRenderer
 
 
 LOGGER = logging.getLogger("mfwam.france")
-PIPELINE_VERSION = "1.0.0"
+PIPELINE_VERSION = "1.1.0"
 DATASET_API = (
     "https://www.data.gouv.fr/api/1/datasets/"
     "paquets-de-modele-de-vagues-mfwam-resolution-0-025deg/"
@@ -57,14 +57,23 @@ MAP_WIDTH = 1600
 MAP_HEIGHT = 1600
 
 # shortName GRIB2 -> nom de champ interne. Correspond à la nomenclature
-# officielle Météo-France (descriptif technique des paquets MFWAM) : SWH,
-# SHWW, MPWW, MWP. Les autres paramètres du paquet SP1 (MWD, MDWW, houles
-# primaire/secondaire/totale, PP1D, WIND, DWI) ne sont pas encore exploités.
+# officielle Météo-France (descriptif technique des paquets MFWAM). Les
+# directions (MWD, MDWW, MDPS, MDSS) et le vent (WIND, DWI) ne sont pas
+# encore exploités. L'indice Benjamin-Feir, la hauteur maximale
+# individuelle et sa période ne figurent pas dans le paquet ouvert SP1 et
+# ne peuvent donc pas être publiés.
 FIELD_BY_SHORTNAME = {
     "swh": "swh_m",
     "shww": "shww_m",
     "mpww": "mpww_s",
     "mwp": "mwp_s",
+    "shs": "shs_m",
+    "shps": "shps_m",
+    "shss": "shss_m",
+    "mps": "mps_s",
+    "mpps": "mpps_s",
+    "mpss": "mpss_s",
+    "pp1d": "pp1d_s",
 }
 
 RESOURCE_RE = re.compile(

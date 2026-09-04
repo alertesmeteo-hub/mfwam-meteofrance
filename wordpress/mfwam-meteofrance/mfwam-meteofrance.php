@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('MFW_VERSION', '1.0.1');
+define('MFW_VERSION', '1.1.0');
 define('MFW_RELEASE_DATE', '04/09/2026');
 define('MFW_OPTION_BASE_URL', 'mfw_national_data_base_url');
 define(
@@ -214,8 +214,12 @@ function mfw_render_settings_page() {
         </form>
         <p><strong>Version du module : <?php echo esc_html(MFW_VERSION); ?> (<?php echo esc_html(MFW_RELEASE_DATE); ?>)</strong></p>
         <h2>Shortcode unique</h2>
-        <p><code>[mfwam_meteo]</code> : carte interactive des vagues (hauteur significative, mer du vent, période moyenne).</p>
-        <p><code>[mfwam_meteo variable="hauteur_mer_du_vent" hauteur="700" titre="Vagues — Manche et Atlantique"]</code></p>
+        <p><code>[mfwam_meteo]</code> : carte interactive des vagues (11 couches — vent et houle).</p>
+        <p><code>[mfwam_meteo variable="hauteur_houle_totale" hauteur="700" titre="Vagues — Manche et Atlantique"]</code></p>
+        <p>
+            Non disponibles dans le paquet ouvert Météo-France SP1 (données non publiées) : indice
+            Benjamin-Feir, hauteur maximale individuelle, période de la hauteur maximale.
+        </p>
         <h2>Auto-guérison du pipeline</h2>
         <p>
             Statut : <strong><?php echo (defined('MFW_GITHUB_TOKEN') && MFW_GITHUB_TOKEN) ? '✅ Configurée' : '⚠️ Non configurée'; ?></strong>
@@ -246,6 +250,13 @@ function mfw_map_variable($value) {
         'hauteur_mer_du_vent',
         'periode_moyenne',
         'periode_mer_du_vent',
+        'hauteur_houle_totale',
+        'hauteur_houle_primaire',
+        'hauteur_houle_secondaire',
+        'periode_houle_totale',
+        'periode_houle_primaire',
+        'periode_houle_secondaire',
+        'periode_pic',
     );
     return in_array($variable, $allowed, true) ? $variable : 'hauteur_significative';
 }
