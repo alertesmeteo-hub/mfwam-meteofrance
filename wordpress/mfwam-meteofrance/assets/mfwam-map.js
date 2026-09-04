@@ -277,8 +277,6 @@
                     button.textContent = layer.label;
                     button.addEventListener("click", function () {
                         selectLayer(key);
-                        layerMenu.hidden = true;
-                        menuToggle.setAttribute("aria-expanded", "false");
                     });
                     row.appendChild(button);
                 });
@@ -422,6 +420,11 @@
         var dragStartY = 0;
         var panStartX = 0;
         var panStartY = 0;
+        // passive: true sur les écouteurs pointeur/souris qui n'appellent
+        // jamais preventDefault : évite que Chromium classe la carte comme
+        // « région non-rapidement-défilable » et retarde/bloque le
+        // défilement de la page au survol (seul le wheel doit rester actif,
+        // pour pouvoir bloquer le zoom Ctrl+molette).
         viewport.addEventListener("pointerdown", function (event) {
             if (zoom <= 1) {
                 return;
@@ -432,7 +435,7 @@
             panStartX = panX;
             panStartY = panY;
             viewport.setPointerCapture(event.pointerId);
-        });
+        }, { passive: true });
         viewport.addEventListener("pointermove", function (event) {
             if (!dragging) {
                 return;
@@ -440,10 +443,10 @@
             panX = panStartX + (event.clientX - dragStartX);
             panY = panStartY + (event.clientY - dragStartY);
             applyTransform();
-        });
+        }, { passive: true });
         viewport.addEventListener("pointerup", function () {
             dragging = false;
-        });
+        }, { passive: true });
         viewport.addEventListener("wheel", function (event) {
             // Ne capture la molette que si Ctrl/Cmd est maintenu : sinon la
             // molette au-dessus de la carte doit continuer à faire défiler

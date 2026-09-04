@@ -3,7 +3,7 @@
  * Plugin Name: MFWAM Météo-France — Cartes de vagues
  * Plugin URI: https://github.com/alertesmeteo-hub/mfwam-meteofrance
  * Description: Module de cartes interactives du modèle de vagues MFWAM de Météo-France (façade maritime française, résolution 0,025°).
- * Version: 1.2.3
+ * Version: 1.3.0
  * Author: Alertes Météo Hub
  * Requires at least: 5.8
  * Requires PHP: 7.4
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('MFW_VERSION', '1.2.3');
+define('MFW_VERSION', '1.3.0');
 define('MFW_RELEASE_DATE', '04/09/2026');
 define('MFW_OPTION_BASE_URL', 'mfw_national_data_base_url');
 define(
@@ -318,7 +318,7 @@ function mfw_render_shortcode($atts) {
                     type="button"
                     class="mfwm-layer-trigger"
                     data-mfwm-menu-toggle
-                    aria-expanded="false"
+                    aria-expanded="true"
                     aria-controls="<?php echo esc_attr($map_id . '-layers'); ?>"
                 >
                     <span data-mfwm-current-layer>Hauteur significative des vagues</span>
@@ -341,7 +341,6 @@ function mfw_render_shortcode($atts) {
             id="<?php echo esc_attr($map_id . '-layers'); ?>"
             class="mfwm-layer-menu"
             data-mfwm-layer-menu
-            hidden
         >
             <div class="mfwm-layer-menu-head">
                 <div>
