@@ -497,12 +497,23 @@
                 probe.hidden = true;
                 return;
             }
-            probe.hidden = false;
-            probe.style.left = probeLeft + "px";
-            probe.style.top = probeTop + "px";
             probe.textContent =
                 value.toFixed(layer.decimals || 1) + (layer.unit ? " " + layer.unit : "") +
                 " · " + layer.label;
+            probe.hidden = false;
+
+            // Empêche la bulle de déborder (et donc d'être coupée par
+            // l'overflow: hidden du cadre) près des bords de la carte.
+            var probeWidth = probe.offsetWidth;
+            var probeHeight = probe.offsetHeight;
+            var margin = 6;
+            var clampedLeft = Math.min(
+                Math.max(probeLeft, probeWidth / 2 + margin),
+                viewportRect.width - probeWidth / 2 - margin
+            );
+            var clampedTop = Math.max(probeTop, probeHeight + margin);
+            probe.style.left = clampedLeft + "px";
+            probe.style.top = clampedTop + "px";
         });
         viewport.addEventListener("mouseleave", function () {
             probe.hidden = true;

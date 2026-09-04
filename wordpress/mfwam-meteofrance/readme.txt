@@ -3,7 +3,7 @@ Contributors: alertesmeteo
 Tags: meteo, mfwam, vagues, houle, meteofrance, avada
 Requires at least: 5.8
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,9 @@ Réglages > MFWAM Météo-France.
 4. Insérez [mfwam_meteo] dans un bloc Avada.
 
 == Changelog ==
+
+= 1.4.1 =
+* Correctif : l'info-bulle au survol était coupée près des bords de la carte (débordait hors du cadre). Sa position est maintenant limitée pour rester entièrement visible.
 
 = 1.4.0 =
 * Zoom à la molette redevenu direct (sans Ctrl) : la carte capture de nouveau la molette pour zoomer dès que le curseur est dessus.
