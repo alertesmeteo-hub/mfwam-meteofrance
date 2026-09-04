@@ -39,7 +39,7 @@ from mfwam_maps import DEFAULT_BOUNDS, WaveMapRenderer
 
 
 LOGGER = logging.getLogger("mfwam.france")
-PIPELINE_VERSION = "1.1.0"
+PIPELINE_VERSION = "1.1.1"
 DATASET_API = (
     "https://www.data.gouv.fr/api/1/datasets/"
     "paquets-de-modele-de-vagues-mfwam-resolution-0-025deg/"
@@ -56,24 +56,32 @@ USER_AGENT = "alertes-meteo.com/mfwam-meteofrance-france/1.0"
 MAP_WIDTH = 1600
 MAP_HEIGHT = 1600
 
-# shortName GRIB2 -> nom de champ interne. Correspond à la nomenclature
-# officielle Météo-France (descriptif technique des paquets MFWAM). Les
-# directions (MWD, MDWW, MDPS, MDSS) et le vent (WIND, DWI) ne sont pas
-# encore exploités. L'indice Benjamin-Feir, la hauteur maximale
-# individuelle et sa période ne figurent pas dans le paquet ouvert SP1 et
-# ne peuvent donc pas être publiés.
+# shortName GRIB2 -> nom de champ interne, vérifié par lecture directe d'un
+# fichier SP1 réel (les tables eccodes par défaut ne connaissent pas tous
+# les noms courts officiels Météo-France : SHS/MPS s'appellent "shts"/"mpts"
+# côté GRIB2, pas "shs"/"mps"). Les directions (MWD, MDWW, MDS, MDPS, MDSS)
+# et le vent (WIND=10si, DWI=10wdir) ne sont pas encore exploités.
 FIELD_BY_SHORTNAME = {
     "swh": "swh_m",
     "shww": "shww_m",
     "mpww": "mpww_s",
     "mwp": "mwp_s",
-    "shs": "shs_m",
-    "shps": "shps_m",
-    "shss": "shss_m",
-    "mps": "mps_s",
-    "mpps": "mpps_s",
-    "mpss": "mpss_s",
+    "shts": "shs_m",
+    "mpts": "mps_s",
     "pp1d": "pp1d_s",
+}
+
+# La houle primaire et secondaire (MDPS/MPPS/SHPS/MDSS/MPSS/SHSS) est un
+# paramètre local Météo-France : eccodes ne lui connaît pas de shortName
+# ("unknown") et il faut l'identifier par (discipline, category, number).
+# Vérifié par lecture directe d'un fichier SP1 réel du 2026-09-04.
+# Indice Benjamin-Feir, hauteur maximale individuelle et sa période
+# n'apparaissent dans aucun message du paquet ouvert SP1 : non publiables.
+FIELD_BY_LOCAL_PARAMETER = {
+    (10, 0, 195): "mpps_s",
+    (10, 0, 192): "shps_m",
+    (10, 0, 197): "mpss_s",
+    (10, 0, 193): "shss_m",
 }
 
 RESOURCE_RE = re.compile(
@@ -452,6 +460,13 @@ def parse_grib_file(
             try:
                 short_name = str(safe_get(gid, "shortName", "")).lower()
                 field = FIELD_BY_SHORTNAME.get(short_name)
+                if field is None:
+                    parameter_key = (
+                        int(safe_get(gid, "discipline", -1)),
+                        int(safe_get(gid, "parameterCategory", -1)),
+                        int(safe_get(gid, "parameterNumber", -1)),
+                    )
+                    field = FIELD_BY_LOCAL_PARAMETER.get(parameter_key)
                 run_time = run_time or grib_datetime(gid, "dataDate", "dataTime")
                 valid_time = valid_time or grib_datetime(gid, "validityDate", "validityTime")
                 end_step = safe_get(gid, "endStep")
