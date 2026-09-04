@@ -3,7 +3,7 @@
  * Plugin Name: MFWAM Météo-France — Cartes de vagues
  * Plugin URI: https://github.com/alertesmeteo-hub/mfwam-meteofrance
  * Description: Module de cartes interactives du modèle de vagues MFWAM de Météo-France (façade maritime française, résolution 0,025°).
- * Version: 1.3.0
+ * Version: 1.4.0
  * Author: Alertes Météo Hub
  * Requires at least: 5.8
  * Requires PHP: 7.4
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('MFW_VERSION', '1.3.0');
+define('MFW_VERSION', '1.4.0');
 define('MFW_RELEASE_DATE', '04/09/2026');
 define('MFW_OPTION_BASE_URL', 'mfw_national_data_base_url');
 define(
@@ -314,16 +314,7 @@ function mfw_render_shortcode($atts) {
         <div class="mfwm-toolbar" data-mfwm-toolbar>
             <div class="mfwm-field mfwm-layer-picker">
                 <span>Paramètre</span>
-                <button
-                    type="button"
-                    class="mfwm-layer-trigger"
-                    data-mfwm-menu-toggle
-                    aria-expanded="true"
-                    aria-controls="<?php echo esc_attr($map_id . '-layers'); ?>"
-                >
-                    <span data-mfwm-current-layer>Hauteur significative des vagues</span>
-                    <span class="mfwm-layer-chevron" aria-hidden="true">⌄</span>
-                </button>
+                <strong class="mfwm-layer-trigger" data-mfwm-current-layer>Hauteur significative des vagues</strong>
             </div>
             <div class="mfwm-time-controls" aria-label="Navigation dans les échéances">
                 <button type="button" data-mfwm-previous title="Échéance précédente" aria-label="Échéance précédente">◀</button>
@@ -347,7 +338,6 @@ function mfw_render_shortcode($atts) {
                     <strong>Choisir une carte MFWAM</strong>
                     <small>Paramètres du paquet SP1 disponibles dans cette première version</small>
                 </div>
-                <button type="button" data-mfwm-menu-close aria-label="Réduire le menu">×</button>
             </div>
             <div class="mfwm-layer-grid" data-mfwm-layer-grid></div>
         </div>
@@ -360,7 +350,6 @@ function mfw_render_shortcode($atts) {
             <div class="mfwm-scene" data-mfwm-scene>
                 <img class="mfwm-background" data-mfwm-background alt="" aria-hidden="true">
                 <img class="mfwm-layer-image" data-mfwm-layer-image alt="">
-                <img class="mfwm-overlay" data-mfwm-overlay alt="" aria-hidden="true">
             </div>
             <div class="mfwm-map-titlebar">
                 <strong data-mfwm-map-title>Carte MFWAM</strong>
@@ -376,7 +365,6 @@ function mfw_render_shortcode($atts) {
             </div>
             <div class="mfwm-legend" data-mfwm-legend aria-label="Légende de la carte"></div>
             <div class="mfwm-probe" data-mfwm-probe hidden></div>
-            <div class="mfwm-wheel-hint" data-mfwm-wheel-hint hidden>Ctrl + molette pour zoomer</div>
             <a class="mfwm-map-brand" href="https://www.alertes-meteo.com/" target="_blank" rel="noopener noreferrer">
                 www.alertes-meteo.com • Module v<?php echo esc_html(MFW_VERSION); ?> (<?php echo esc_html(MFW_RELEASE_DATE); ?>)
             </a>

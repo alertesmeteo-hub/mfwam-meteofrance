@@ -99,7 +99,6 @@
     background: #fff;
     border: 1px solid #cdd8e3;
     border-radius: 8px;
-    cursor: pointer;
     font-size: 0.9rem;
 }
 
@@ -148,14 +147,6 @@
     display: block;
     color: #5a6b7d;
     font-size: 0.75rem;
-}
-
-.mfwm-layer-menu-head button {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    color: #5a6b7d;
 }
 
 .mfwm-layer-grid {
@@ -221,8 +212,7 @@
 }
 
 .mfwm-background,
-.mfwm-layer-image,
-.mfwm-overlay {
+.mfwm-layer-image {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -336,24 +326,6 @@
 }
 
 .mfwm-probe[hidden] {
-    display: none;
-}
-
-.mfwm-wheel-hint {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 9;
-    padding: 0.6em 1em;
-    background: rgba(10, 20, 35, 0.75);
-    color: #fff;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    pointer-events: none;
-}
-
-.mfwm-wheel-hint[hidden] {
     display: none;
 }
 

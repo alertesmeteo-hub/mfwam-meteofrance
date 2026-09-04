@@ -131,7 +131,6 @@
         var loading = qs(root, "[data-mfwm-loading]");
         var errorBox = qs(root, "[data-mfwm-error]");
         var background = qs(root, "[data-mfwm-background]");
-        var overlay = qs(root, "[data-mfwm-overlay]");
         var layerImage = qs(root, "[data-mfwm-layer-image]");
         var scene = qs(root, "[data-mfwm-scene]");
         var viewport = qs(root, "[data-mfwm-viewport]");
@@ -145,10 +144,7 @@
         var staleBanner = qs(root, "[data-mfwm-stale]");
         var legend = qs(root, "[data-mfwm-legend]");
         var currentLayerLabel = qs(root, "[data-mfwm-current-layer]");
-        var layerMenu = qs(root, "[data-mfwm-layer-menu]");
         var layerGrid = qs(root, "[data-mfwm-layer-grid]");
-        var menuToggle = qs(root, "[data-mfwm-menu-toggle]");
-        var menuClose = qs(root, "[data-mfwm-menu-close]");
         var playButton = qs(root, "[data-mfwm-play]");
         var previousButton = qs(root, "[data-mfwm-previous]");
         var nextButton = qs(root, "[data-mfwm-next]");
@@ -160,8 +156,6 @@
         var probe = qs(root, "[data-mfwm-probe]");
         var toolbar = qs(root, "[data-mfwm-toolbar]");
         var toolbarSentinel = qs(root, "[data-mfwm-toolbar-sentinel]");
-        var wheelHint = qs(root, "[data-mfwm-wheel-hint]");
-        var wheelHintTimer = null;
 
         var manifest = null;
         var model = null;
@@ -335,7 +329,6 @@
                     }
 
                     background.src = baseUrl + "/" + manifest.background;
-                    overlay.src = baseUrl + "/" + manifest.overlay;
                     slider.max = String(manifest.steps.length - 1);
                     slider.value = "0";
 
@@ -391,15 +384,6 @@
                 startPlayback();
             }
         });
-        menuToggle.addEventListener("click", function () {
-            var expanded = menuToggle.getAttribute("aria-expanded") === "true";
-            layerMenu.hidden = expanded;
-            menuToggle.setAttribute("aria-expanded", expanded ? "false" : "true");
-        });
-        menuClose.addEventListener("click", function () {
-            layerMenu.hidden = true;
-            menuToggle.setAttribute("aria-expanded", "false");
-        });
         zoomInButton.addEventListener("click", function () {
             setZoom(zoom + ZOOM_STEP);
         });
@@ -448,20 +432,6 @@
             dragging = false;
         }, { passive: true });
         viewport.addEventListener("wheel", function (event) {
-            // Ne capture la molette que si Ctrl/Cmd est maintenu : sinon la
-            // molette au-dessus de la carte doit continuer à faire défiler
-            // la page normalement (sans quoi la page semble « bloquée »).
-            if (!event.ctrlKey && !event.metaKey) {
-                if (!viewport.classList.contains("mfwm-wheel-hint-shown")) {
-                    viewport.classList.add("mfwm-wheel-hint-shown");
-                    wheelHint.hidden = false;
-                    clearTimeout(wheelHintTimer);
-                    wheelHintTimer = setTimeout(function () {
-                        wheelHint.hidden = true;
-                    }, 1400);
-                }
-                return;
-            }
             event.preventDefault();
             setZoom(zoom + (event.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP));
         }, { passive: false });
@@ -517,10 +487,7 @@
             var probeTop = event.clientY - viewportRect.top;
 
             if (pixel[3] < 40) {
-                probe.hidden = false;
-                probe.style.left = probeLeft + "px";
-                probe.style.top = probeTop + "px";
-                probe.textContent = "Hors zone / pas de données";
+                probe.hidden = true;
                 return;
             }
 
