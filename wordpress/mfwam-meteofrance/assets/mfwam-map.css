@@ -60,11 +60,28 @@
     gap: 0.75em;
     margin: 0 -1.25em 0.6em;
     padding: 0.6em 1.25em;
-    position: sticky;
-    top: var(--mfwm-sticky-offset, 0px);
-    z-index: 6;
     background: #f7f9fc;
-    border-bottom: 1px solid #e3e9f0;
+    border-bottom: 1px solid transparent;
+    box-sizing: border-box;
+}
+
+/* Avada encapsule le module dans un conteneur `overflow: clip`, ce qui
+   empêche `position: sticky` de fonctionner : le JS bascule donc cette
+   classe en `position: fixed` (voir data-mfwm-toolbar-sentinel). */
+.mfwm-toolbar.is-stuck {
+    position: fixed;
+    top: 0;
+    z-index: 50;
+    border-bottom-color: #e3e9f0;
+    box-shadow: 0 4px 14px rgba(10, 20, 35, 0.15);
+}
+
+.mfwm-toolbar-placeholder {
+    margin-bottom: 0.6em;
+}
+
+.mfwm-toolbar-placeholder[hidden] {
+    display: none;
 }
 
 .mfwm-field span {

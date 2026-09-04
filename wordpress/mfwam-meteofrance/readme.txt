@@ -3,7 +3,7 @@ Contributors: alertesmeteo
 Tags: meteo, mfwam, vagues, houle, meteofrance, avada
 Requires at least: 5.8
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,11 @@ Réglages > MFWAM Météo-France.
 4. Insérez [mfwam_meteo] dans un bloc Avada.
 
 == Changelog ==
+
+= 1.2.1 =
+* Correctif : la barre d'outils ne restait pas fixe en défilant, car un conteneur Avada ancêtre (`overflow: clip`) empêche `position: sticky` de fonctionner. Remplacée par une position fixe pilotée en JavaScript (IntersectionObserver), indépendante de la structure du thème.
+* Correctif : l'info-bulle au survol se plaçait n'importe où dès que le zoom dépassait 100 % (mauvais référentiel de positionnement). Repositionnée par rapport au cadre de la carte, pas à l'image zoomée.
+* Correctif : l'heure du run et de génération affichait l'heure de Paris étiquetée à tort « UTC » (ex. run 06h UTC affiché « 08:00 UTC »). Le fuseau horaire réel est maintenant indiqué automatiquement.
 
 = 1.2.0 =
 * Barre d'outils (paramètre + timeline) collante en haut de la carte pendant le défilement de la page.

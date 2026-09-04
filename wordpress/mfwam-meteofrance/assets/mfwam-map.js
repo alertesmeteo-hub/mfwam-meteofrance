@@ -77,8 +77,9 @@
                 month: "short",
                 hour: "2-digit",
                 minute: "2-digit",
+                timeZoneName: "short",
                 timeZone: timezone || undefined,
-            }).format(date) + " UTC".replace("UTC", "");
+            }).format(date);
         } catch (error) {
             return isoString;
         }
@@ -157,6 +158,8 @@
         var fullscreenButton = qs(root, "[data-mfwm-fullscreen]");
         var zoomLevelLabel = qs(root, "[data-mfwm-zoom-level]");
         var probe = qs(root, "[data-mfwm-probe]");
+        var toolbar = qs(root, "[data-mfwm-toolbar]");
+        var toolbarSentinel = qs(root, "[data-mfwm-toolbar-sentinel]");
 
         var manifest = null;
         var model = null;
@@ -338,10 +341,10 @@
                     selectLayer(currentLayer);
 
                     var runText = formatRun(model.run_time, timezone);
-                    runLabel.textContent = "Dernier run MFWAM : " + runText + " UTC";
-                    mapRunLabel.textContent = "Run MFWAM " + runText + " UTC";
+                    runLabel.textContent = "Dernier run MFWAM : " + runText;
+                    mapRunLabel.textContent = "Run MFWAM " + runText;
                     generatedLabel.textContent =
-                        "Cartes générées : " + formatRun(results[0].generated_at, timezone) + " UTC";
+                        "Cartes générées : " + formatRun(results[0].generated_at, timezone);
 
                     checkStale();
                     loading.hidden = true;
@@ -443,26 +446,31 @@
                 probe.hidden = true;
                 return;
             }
-            var rect = layerImage.getBoundingClientRect();
-            if (rect.width <= 0 || rect.height <= 0) {
+            var imageRect = layerImage.getBoundingClientRect();
+            if (imageRect.width <= 0 || imageRect.height <= 0) {
                 probe.hidden = true;
                 return;
             }
-            var px = event.clientX - rect.left;
-            var py = event.clientY - rect.top;
-            if (px < 0 || py < 0 || px > rect.width || py > rect.height) {
+            // Coordonnées dans l'image affichée (post-zoom/pan) : servent au
+            // rééchantillonnage de la couleur, pas au positionnement de la bulle.
+            var imageX = event.clientX - imageRect.left;
+            var imageY = event.clientY - imageRect.top;
+            if (imageX < 0 || imageY < 0 || imageX > imageRect.width || imageY > imageRect.height) {
                 probe.hidden = true;
                 return;
             }
             var naturalWidth = probeCanvas.width;
             var naturalHeight = probeCanvas.height;
-            var coverScale = Math.max(rect.width / naturalWidth, rect.height / naturalHeight);
+            var coverScale = Math.max(
+                imageRect.width / naturalWidth,
+                imageRect.height / naturalHeight
+            );
             var displayedWidth = naturalWidth * coverScale;
             var displayedHeight = naturalHeight * coverScale;
-            var offsetX = (displayedWidth - rect.width) / 2;
-            var offsetY = (displayedHeight - rect.height) / 2;
-            var sourceX = Math.round((px + offsetX) / coverScale);
-            var sourceY = Math.round((py + offsetY) / coverScale);
+            var offsetX = (displayedWidth - imageRect.width) / 2;
+            var offsetY = (displayedHeight - imageRect.height) / 2;
+            var sourceX = Math.round((imageX + offsetX) / coverScale);
+            var sourceY = Math.round((imageY + offsetY) / coverScale);
             if (sourceX < 0 || sourceY < 0 || sourceX >= naturalWidth || sourceY >= naturalHeight) {
                 probe.hidden = true;
                 return;
@@ -475,10 +483,18 @@
                 probe.hidden = true;
                 return;
             }
+
+            // Position de la bulle : relative au viewport (non transformé),
+            // jamais à l'image zoomée/déplacée — sinon elle « délire » dès
+            // que le zoom dépasse 100 %.
+            var viewportRect = viewport.getBoundingClientRect();
+            var probeLeft = event.clientX - viewportRect.left;
+            var probeTop = event.clientY - viewportRect.top;
+
             if (pixel[3] < 40) {
                 probe.hidden = false;
-                probe.style.left = px + "px";
-                probe.style.top = py + "px";
+                probe.style.left = probeLeft + "px";
+                probe.style.top = probeTop + "px";
                 probe.textContent = "Hors zone / pas de données";
                 return;
             }
@@ -490,8 +506,8 @@
                 return;
             }
             probe.hidden = false;
-            probe.style.left = px + "px";
-            probe.style.top = py + "px";
+            probe.style.left = probeLeft + "px";
+            probe.style.top = probeTop + "px";
             probe.textContent =
                 value.toFixed(layer.decimals || 1) + (layer.unit ? " " + layer.unit : "") +
                 " · " + layer.label;
@@ -499,6 +515,50 @@
         viewport.addEventListener("mouseleave", function () {
             probe.hidden = true;
         });
+
+        // Barre d'outils "fixe" en position: fixed pilotée en JS, pas en CSS
+        // sticky : un conteneur Avada ancêtre a overflow: clip, ce qui casse
+        // position: sticky. Le sentinelle placé juste avant la barre indique
+        // quand elle doit se détacher du flux normal.
+        var toolbarPlaceholder = document.createElement("div");
+        toolbarPlaceholder.className = "mfwm-toolbar-placeholder";
+        toolbarPlaceholder.hidden = true;
+        toolbar.insertAdjacentElement("beforebegin", toolbarPlaceholder);
+
+        function stickToolbar() {
+            var cardRect = root.getBoundingClientRect();
+            toolbar.style.left = cardRect.left + "px";
+            toolbar.style.width = cardRect.width + "px";
+            toolbarPlaceholder.style.height = toolbar.offsetHeight + "px";
+            toolbarPlaceholder.hidden = false;
+            toolbar.classList.add("is-stuck");
+        }
+        function unstickToolbar() {
+            toolbar.classList.remove("is-stuck");
+            toolbar.style.left = "";
+            toolbar.style.width = "";
+            toolbarPlaceholder.hidden = true;
+        }
+        if (window.IntersectionObserver) {
+            var toolbarObserver = new IntersectionObserver(
+                function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            unstickToolbar();
+                        } else if (entry.boundingClientRect.top < 0) {
+                            stickToolbar();
+                        }
+                    });
+                },
+                { threshold: 0 }
+            );
+            toolbarObserver.observe(toolbarSentinel);
+            window.addEventListener("resize", function () {
+                if (toolbar.classList.contains("is-stuck")) {
+                    stickToolbar();
+                }
+            });
+        }
 
         load();
     }
