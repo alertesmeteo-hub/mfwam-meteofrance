@@ -3,7 +3,7 @@ Contributors: alertesmeteo
 Tags: meteo, mfwam, vagues, houle, meteofrance, avada
 Requires at least: 5.8
 Requires PHP: 7.4
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,10 @@ Réglages > MFWAM Météo-France.
 4. Insérez [mfwam_meteo] dans un bloc Avada.
 
 == Changelog ==
+
+= 1.2.3 =
+* Correctif : la carte avait `touch-action: none` en permanence (prévu pour le glisser-déposer en zoom), ce qui bloquait aussi le défilement tactile/trackpad de la page dès que le curseur passait dessus, même sans zoomer. Passé à `pan-y` par défaut, `none` uniquement pendant un zoom actif.
+* Carte agrandie : hauteur par défaut 900 px (au lieu de 700), plafond porté à 1300 px (attribut `hauteur` du shortcode).
 
 = 1.2.2 =
 * Correctif : la molette de la souris était captée par la carte dès que le curseur passait dessus (pour le zoom), bloquant le défilement normal de la page — c'était la vraie cause du « menu pas fixe » signalé : la page ne défilait tout simplement pas tant que le curseur restait sur/près de la carte. Le zoom à la molette nécessite maintenant Ctrl (ou Cmd) ; sans cette touche, la page défile normalement et une info-bulle rappelle le raccourci.

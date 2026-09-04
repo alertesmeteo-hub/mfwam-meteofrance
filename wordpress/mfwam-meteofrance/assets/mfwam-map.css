@@ -206,7 +206,10 @@
     overflow: hidden;
     border-radius: 10px;
     background: #0a1f3d;
-    touch-action: none;
+    /* pan-y par défaut : laisse le défilement tactile/trackpad de la page
+       traverser la carte au repos. Basculé sur "none" en JS uniquement
+       pendant un zoom actif (>100 %), pour permettre le glisser-déposer. */
+    touch-action: pan-y;
     cursor: grab;
 }
 

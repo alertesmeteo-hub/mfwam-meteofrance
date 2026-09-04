@@ -206,6 +206,12 @@
             if (zoom === ZOOM_MIN) {
                 panX = 0;
                 panY = 0;
+                // Rend la main au défilement tactile/trackpad de la page
+                // dès que la carte n'est plus zoomée (sinon "none" bloque
+                // aussi le défilement normal au repos, pas seulement le pan).
+                viewport.style.touchAction = "pan-y";
+            } else {
+                viewport.style.touchAction = "none";
             }
             applyTransform();
         }
