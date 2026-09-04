@@ -310,6 +310,11 @@
     padding: 1em;
 }
 
+.mfwm-loading[hidden],
+.mfw-error[hidden] {
+    display: none;
+}
+
 .mfwm-timeline {
     margin-top: 0.6em;
 }

@@ -3,7 +3,7 @@ Contributors: alertesmeteo
 Tags: meteo, mfwam, vagues, houle, meteofrance, avada
 Requires at least: 5.8
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,6 +34,9 @@ Réglages > MFWAM Météo-France.
 4. Insérez [mfwam_meteo] dans un bloc Avada.
 
 == Changelog ==
+
+= 1.0.1 =
+* Correctif critique : le message « Chargement de la carte… » restait affiché en permanence au-dessus de la carte, même une fois les données chargées, car la règle CSS `.mfwm-loading { display: flex }` l'emportait sur l'attribut HTML `hidden` posé par le JavaScript. Ajout d'une règle `[hidden] { display: none }` explicite.
 
 = 1.0.0 =
 * Première version : 4 cartes MFWAM 0,025° (hauteur significative, hauteur
