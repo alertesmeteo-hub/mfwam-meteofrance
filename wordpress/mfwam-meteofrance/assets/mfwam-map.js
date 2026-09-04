@@ -160,6 +160,8 @@
         var probe = qs(root, "[data-mfwm-probe]");
         var toolbar = qs(root, "[data-mfwm-toolbar]");
         var toolbarSentinel = qs(root, "[data-mfwm-toolbar-sentinel]");
+        var wheelHint = qs(root, "[data-mfwm-wheel-hint]");
+        var wheelHintTimer = null;
 
         var manifest = null;
         var model = null;
@@ -437,6 +439,20 @@
             dragging = false;
         });
         viewport.addEventListener("wheel", function (event) {
+            // Ne capture la molette que si Ctrl/Cmd est maintenu : sinon la
+            // molette au-dessus de la carte doit continuer à faire défiler
+            // la page normalement (sans quoi la page semble « bloquée »).
+            if (!event.ctrlKey && !event.metaKey) {
+                if (!viewport.classList.contains("mfwm-wheel-hint-shown")) {
+                    viewport.classList.add("mfwm-wheel-hint-shown");
+                    wheelHint.hidden = false;
+                    clearTimeout(wheelHintTimer);
+                    wheelHintTimer = setTimeout(function () {
+                        wheelHint.hidden = true;
+                    }, 1400);
+                }
+                return;
+            }
             event.preventDefault();
             setZoom(zoom + (event.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP));
         }, { passive: false });

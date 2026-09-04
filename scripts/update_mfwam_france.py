@@ -33,13 +33,13 @@ from eccodes import (
     codes_grib_new_from_file,
     codes_release,
 )
-from scipy.ndimage import map_coordinates
+from scipy.ndimage import distance_transform_edt, map_coordinates
 
 from mfwam_maps import DEFAULT_BOUNDS, WaveMapRenderer
 
 
 LOGGER = logging.getLogger("mfwam.france")
-PIPELINE_VERSION = "1.2.0"
+PIPELINE_VERSION = "1.2.1"
 DATASET_API = (
     "https://www.data.gouv.fr/api/1/datasets/"
     "paquets-de-modele-de-vagues-mfwam-resolution-0-025deg/"
@@ -420,14 +420,43 @@ class MapSampler:
         values = mask_missing(
             codes_get_double_array(gid, "values"), safe_get(gid, "missingValue")
         ).reshape(self.geometry.nj, self.geometry.ni)
+        invalid = ~np.isfinite(values)
+
+        # L'interpolation bilinéaire (order=1) mélange les valeurs NaN de la
+        # terre dans les cellules de mer voisines : le masque terre/mer
+        # obtenu directement à partir de cette interpolation « dilate » la
+        # zone transparente d'environ une cellule native (2,7 km) au-delà du
+        # vrai trait de côte, ce qui décale visiblement les couleurs par
+        # rapport au tracé du littoral. On sépare donc deux échantillonnages :
+        # les valeurs (comblées par plus proche voisin pour éviter toute
+        # contamination NaN, puis interpolées en bilinéaire pour rester
+        # lisses) et le masque de validité (échantillonné au plus proche
+        # voisin, sans mélange, pour rester fidèle à la résolution native).
+        if invalid.any() and not invalid.all():
+            fill_indexes = distance_transform_edt(
+                invalid, return_distances=False, return_indices=True
+            )
+            filled_values = values[tuple(fill_indexes)]
+        else:
+            filled_values = values
+
         sampled = map_coordinates(
-            values,
+            filled_values,
             [self.row_grid, self.column_grid],
             order=1,
             mode="constant",
             cval=np.nan,
             prefilter=False,
         ).astype(np.float32, copy=False)
+        sampled_invalid = map_coordinates(
+            invalid.astype(np.float32),
+            [self.row_grid, self.column_grid],
+            order=0,
+            mode="constant",
+            cval=1.0,
+            prefilter=False,
+        )
+        sampled[sampled_invalid >= 0.5] = np.nan
         sampled[~self.coverage] = np.nan
         return sampled
 

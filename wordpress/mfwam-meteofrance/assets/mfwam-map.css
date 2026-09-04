@@ -336,6 +336,24 @@
     display: none;
 }
 
+.mfwm-wheel-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9;
+    padding: 0.6em 1em;
+    background: rgba(10, 20, 35, 0.75);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    pointer-events: none;
+}
+
+.mfwm-wheel-hint[hidden] {
+    display: none;
+}
+
 .mfwm-loading,
 .mfw-error {
     position: absolute;
