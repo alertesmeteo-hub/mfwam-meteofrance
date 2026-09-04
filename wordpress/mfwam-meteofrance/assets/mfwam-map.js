@@ -3,8 +3,51 @@
 
     var STALE_THRESHOLD_MS = 8 * 60 * 60 * 1000;
     var ZOOM_MIN = 1;
-    var ZOOM_MAX = 4;
+    var ZOOM_MAX = 8;
     var ZOOM_STEP = 0.25;
+
+    function hexToRgb(hex) {
+        var clean = hex.replace("#", "");
+        return [
+            parseInt(clean.substring(0, 2), 16),
+            parseInt(clean.substring(2, 4), 16),
+            parseInt(clean.substring(4, 6), 16),
+        ];
+    }
+
+    // Reconstruit une valeur approximative à partir de la couleur du pixel
+    // survolé et des points de la légende (aucune grille numérique publiée
+    // par le pipeline : on inverse le dégradé déjà envoyé dans le manifeste).
+    function valueFromColor(rgb, stops) {
+        var best = null;
+        for (var i = 0; i < stops.length - 1; i += 1) {
+            var a = hexToRgb(stops[i].color);
+            var b = hexToRgb(stops[i + 1].color);
+            var abx = b[0] - a[0];
+            var aby = b[1] - a[1];
+            var abz = b[2] - a[2];
+            var lengthSquared = abx * abx + aby * aby + abz * abz;
+            var t = 0;
+            if (lengthSquared > 0) {
+                t =
+                    ((rgb[0] - a[0]) * abx + (rgb[1] - a[1]) * aby + (rgb[2] - a[2]) * abz) /
+                    lengthSquared;
+                t = Math.min(1, Math.max(0, t));
+            }
+            var projected = [a[0] + abx * t, a[1] + aby * t, a[2] + abz * t];
+            var dx = rgb[0] - projected[0];
+            var dy = rgb[1] - projected[1];
+            var dz = rgb[2] - projected[2];
+            var distance = dx * dx + dy * dy + dz * dz;
+            if (best === null || distance < best.distance) {
+                best = {
+                    distance: distance,
+                    value: stops[i].value + (stops[i + 1].value - stops[i].value) * t,
+                };
+            }
+        }
+        return best ? best.value : null;
+    }
 
     function qs(root, selector) {
         return root.querySelector(selector);
@@ -113,6 +156,7 @@
         var resetButton = qs(root, "[data-mfwm-reset]");
         var fullscreenButton = qs(root, "[data-mfwm-fullscreen]");
         var zoomLevelLabel = qs(root, "[data-mfwm-zoom-level]");
+        var probe = qs(root, "[data-mfwm-probe]");
 
         var manifest = null;
         var model = null;
@@ -122,6 +166,24 @@
         var zoom = 1;
         var panX = 0;
         var panY = 0;
+        var probeCanvas = document.createElement("canvas");
+        var probeContext = probeCanvas.getContext("2d", { willReadFrequently: true });
+        var probeReady = false;
+
+        layerImage.crossOrigin = "anonymous";
+        layerImage.addEventListener("load", function () {
+            try {
+                probeCanvas.width = layerImage.naturalWidth;
+                probeCanvas.height = layerImage.naturalHeight;
+                probeContext.drawImage(layerImage, 0, 0);
+                probeReady = true;
+            } catch (error) {
+                probeReady = false;
+            }
+        });
+        layerImage.addEventListener("error", function () {
+            probeReady = false;
+        });
 
         function showError(message) {
             loading.hidden = true;
@@ -375,6 +437,68 @@
             event.preventDefault();
             setZoom(zoom + (event.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP));
         }, { passive: false });
+
+        viewport.addEventListener("mousemove", function (event) {
+            if (!manifest || !probeReady || !currentLayer) {
+                probe.hidden = true;
+                return;
+            }
+            var rect = layerImage.getBoundingClientRect();
+            if (rect.width <= 0 || rect.height <= 0) {
+                probe.hidden = true;
+                return;
+            }
+            var px = event.clientX - rect.left;
+            var py = event.clientY - rect.top;
+            if (px < 0 || py < 0 || px > rect.width || py > rect.height) {
+                probe.hidden = true;
+                return;
+            }
+            var naturalWidth = probeCanvas.width;
+            var naturalHeight = probeCanvas.height;
+            var coverScale = Math.max(rect.width / naturalWidth, rect.height / naturalHeight);
+            var displayedWidth = naturalWidth * coverScale;
+            var displayedHeight = naturalHeight * coverScale;
+            var offsetX = (displayedWidth - rect.width) / 2;
+            var offsetY = (displayedHeight - rect.height) / 2;
+            var sourceX = Math.round((px + offsetX) / coverScale);
+            var sourceY = Math.round((py + offsetY) / coverScale);
+            if (sourceX < 0 || sourceY < 0 || sourceX >= naturalWidth || sourceY >= naturalHeight) {
+                probe.hidden = true;
+                return;
+            }
+
+            var pixel;
+            try {
+                pixel = probeContext.getImageData(sourceX, sourceY, 1, 1).data;
+            } catch (error) {
+                probe.hidden = true;
+                return;
+            }
+            if (pixel[3] < 40) {
+                probe.hidden = false;
+                probe.style.left = px + "px";
+                probe.style.top = py + "px";
+                probe.textContent = "Hors zone / pas de données";
+                return;
+            }
+
+            var layer = manifest.layers[currentLayer];
+            var value = valueFromColor([pixel[0], pixel[1], pixel[2]], layer.stops);
+            if (value === null) {
+                probe.hidden = true;
+                return;
+            }
+            probe.hidden = false;
+            probe.style.left = px + "px";
+            probe.style.top = py + "px";
+            probe.textContent =
+                value.toFixed(layer.decimals || 1) + (layer.unit ? " " + layer.unit : "") +
+                " · " + layer.label;
+        });
+        viewport.addEventListener("mouseleave", function () {
+            probe.hidden = true;
+        });
 
         load();
     }

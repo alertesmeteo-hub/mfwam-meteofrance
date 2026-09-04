@@ -3,7 +3,7 @@ Contributors: alertesmeteo
 Tags: meteo, mfwam, vagues, houle, meteofrance, avada
 Requires at least: 5.8
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,11 @@ Réglages > MFWAM Météo-France.
 4. Insérez [mfwam_meteo] dans un bloc Avada.
 
 == Changelog ==
+
+= 1.2.0 =
+* Barre d'outils (paramètre + timeline) collante en haut de la carte pendant le défilement de la page.
+* Zoom porté à x8 et résolution native des cartes doublée (2400×2400, contre 1600×1600) : moins de flou en zoomant.
+* Info-bulle au survol : valeur reconstruite depuis la couleur du pixel et la légende (aucune grille numérique supplémentaire publiée par le pipeline).
 
 = 1.1.0 =
 * 7 nouvelles cartes : hauteur et période de la houle (totale, primaire, secondaire), période de pic des vagues. 11 couches au total sur les 18 du paquet ouvert SP1.

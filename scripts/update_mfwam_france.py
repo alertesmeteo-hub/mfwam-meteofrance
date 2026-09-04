@@ -39,7 +39,7 @@ from mfwam_maps import DEFAULT_BOUNDS, WaveMapRenderer
 
 
 LOGGER = logging.getLogger("mfwam.france")
-PIPELINE_VERSION = "1.1.1"
+PIPELINE_VERSION = "1.2.0"
 DATASET_API = (
     "https://www.data.gouv.fr/api/1/datasets/"
     "paquets-de-modele-de-vagues-mfwam-resolution-0-025deg/"
@@ -53,8 +53,8 @@ DEFAULT_CURRENT_METADATA_URL = (
 )
 USER_AGENT = "alertes-meteo.com/mfwam-meteofrance-france/1.0"
 
-MAP_WIDTH = 1600
-MAP_HEIGHT = 1600
+MAP_WIDTH = 2400
+MAP_HEIGHT = 2400
 
 # shortName GRIB2 -> nom de champ interne, vérifié par lecture directe d'un
 # fichier SP1 réel (les tables eccodes par défaut ne connaissent pas tous

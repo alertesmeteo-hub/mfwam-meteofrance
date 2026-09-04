@@ -22,7 +22,7 @@ from PIL import Image
 
 
 MAP_SCHEMA_VERSION = 1
-MODULE_VERSION = "1.1.0"
+MODULE_VERSION = "1.2.0"
 DEFAULT_BOUNDS = {
     "south": 38.0,
     "west": -8.0,
@@ -266,8 +266,8 @@ class WaveMapRenderer:
         self,
         output_directory: Path,
         *,
-        width: int = 1600,
-        height: int = 1600,
+        width: int = 2400,
+        height: int = 2400,
         bounds: dict[str, float] | None = None,
         boundary_directory: Path | None = None,
     ) -> None:
