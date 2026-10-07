@@ -36,6 +36,7 @@ from eccodes import (
 from scipy.ndimage import distance_transform_edt, map_coordinates
 
 from mfwam_maps import DEFAULT_BOUNDS, WaveMapRenderer
+from mfwam_probes import DIRECTION_FIELDS, PROBE_FIELDS, PROBE_ONLY_FIELDS, write_step_probes
 
 
 LOGGER = logging.getLogger("mfwam.france")
@@ -55,6 +56,8 @@ USER_AGENT = "alertes-meteo.com/mfwam-meteofrance-france/1.0"
 
 MAP_WIDTH = 2400
 MAP_HEIGHT = 2400
+# Grilles de valeurs pour la carte marine du site : environ 0,06° (7 km) par cellule, lignes Web Mercator.
+PROBE_WIDTH = 320
 
 # shortName GRIB2 -> nom de champ interne, vérifié par lecture directe d'un
 # fichier SP1 réel (les tables eccodes par défaut ne connaissent pas tous
@@ -69,6 +72,10 @@ FIELD_BY_SHORTNAME = {
     "shts": "shs_m",
     "mpts": "mps_s",
     "pp1d": "pp1d_s",
+    # Directions (d'où viennent les vagues), publiées seulement en grilles de valeurs.
+    "mwd": "mwd_deg",
+    "wvdir": "wvdir_deg",
+    "swdir": "swdir_deg",
 }
 
 # La houle primaire et secondaire (MDPS/MPPS/SHPS/MDSS/MPSS/SHSS) est un
@@ -416,7 +423,7 @@ class MapSampler:
         )
         self.geometry = geometry
 
-    def extract(self, gid: int) -> np.ndarray:
+    def extract(self, gid: int, nearest: bool = False) -> np.ndarray:
         values = mask_missing(
             codes_get_double_array(gid, "values"), safe_get(gid, "missingValue")
         ).reshape(self.geometry.nj, self.geometry.ni)
@@ -443,7 +450,7 @@ class MapSampler:
         sampled = map_coordinates(
             filled_values,
             [self.row_grid, self.column_grid],
-            order=1,
+            order=0 if nearest else 1,
             mode="constant",
             cval=np.nan,
             prefilter=False,
@@ -474,8 +481,11 @@ def parse_grib_file(
     path: Path,
     map_sampler: MapSampler,
     lead_hour: int,
+    probe_sampler: MapSampler | None = None,
 ) -> dict[str, Any]:
     map_values: dict[str, np.ndarray] = {}
+    probe_values: dict[str, np.ndarray] = {}
+    probe_sources = set(PROBE_FIELDS.values())
     run_time: datetime | None = None
     valid_time: datetime | None = None
     observed_lead: int | None = None
@@ -506,7 +516,12 @@ def parse_grib_file(
                 if geometry is None:
                     geometry = GridGeometry(gid)
                     map_sampler.bind(geometry)
-                map_values[field] = map_sampler.extract(gid)
+                    if probe_sampler is not None:
+                        probe_sampler.bind(geometry)
+                if field not in PROBE_ONLY_FIELDS:
+                    map_values[field] = map_sampler.extract(gid)
+                if probe_sampler is not None and field in probe_sources:
+                    probe_values[field] = probe_sampler.extract(gid, nearest=field in DIRECTION_FIELDS)
             finally:
                 codes_release(gid)
 
@@ -525,6 +540,7 @@ def parse_grib_file(
         "run_time": run_time,
         "valid_time": valid_time,
         "map_values": map_values,
+        "probe_values": probe_values,
     }
 
 
@@ -548,6 +564,13 @@ def build_product(
         boundary_directory=Path(__file__).resolve().parents[1] / "config" / "natural-earth",
     )
 
+    # Grille des valeurs : même emprise, lignes régulières en Web Mercator, hauteur déduite de la largeur.
+    span_x = np.radians(DEFAULT_BOUNDS["east"] - DEFAULT_BOUNDS["west"])
+    span_y = float(_mercator(np.asarray(DEFAULT_BOUNDS["north"])) - _mercator(np.asarray(DEFAULT_BOUNDS["south"])))
+    probe_height = int(round(PROBE_WIDTH * span_y / span_x))
+    probe_sampler = MapSampler(PROBE_WIDTH, probe_height, DEFAULT_BOUNDS)
+    probe_paths: dict[int, dict[str, str]] = {}
+
     model_run = run_hint
     source_bytes = 0
     leads = sorted(resources)
@@ -562,8 +585,9 @@ def build_product(
             download_resource(session, resource, destination)
             source_bytes += destination.stat().st_size
             LOGGER.info("Décodage et cartes MFWAM %s/%s : +%03d h", position, len(leads), lead)
-            step = parse_grib_file(destination, map_sampler, lead)
+            step = parse_grib_file(destination, map_sampler, lead, probe_sampler)
             model_run = model_run or step["run_time"]
+            probe_paths[lead] = write_step_probes(result_directory / "maps", lead, step["probe_values"])
             map_renderer.render_step(
                 lead_hour=lead,
                 valid_time=step["valid_time"],
@@ -576,6 +600,13 @@ def build_product(
     assert generated_at is not None
     run_time = iso_utc(model_run)
     map_manifest = map_renderer.write_manifest(generated_at=generated_at, run_time=run_time)
+    # Grilles de valeurs : ajoutées au manifeste des cartes (clé « probes » de chaque échéance).
+    for manifest_step in map_manifest["steps"]:
+        manifest_step["probes"] = probe_paths.get(int(manifest_step["lead_hour"]), {})
+    map_manifest["probe_grid"] = {"width": PROBE_WIDTH, "height": probe_height}
+    with (result_directory / "maps" / "index.json").open("w", encoding="utf-8") as handle:
+        json.dump(map_manifest, handle, ensure_ascii=False, separators=(",", ":"))
+        handle.write("\n")
 
     model = {
         "name": "MFWAM France 0,025°",
